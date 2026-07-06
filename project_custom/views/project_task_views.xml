@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_task_form2_inherited" model="ir.ui.view">
+        <field name="name">project.task.form.inherited.connes</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="hr_timesheet.view_task_form2_inherited"/>
+        <field name="arch" type="xml">
+            <field name="project_id" position="after">
+                <field name="timesheet_optional_fields" invisible="0"/>
+                <field name="department_id" invisible="0"/>
+            </field>
+            <field name="timesheet_ids" position="attributes">
+                <attribute name="context">{'default_project_id': project_id, 'default_name': '', 'form_view_ref': 'hr_timesheet.timesheet_view_form_user',
+                    'timesheet_optional_fields': timesheet_optional_fields, 'task_id': id}
+                </attribute>
+                <attribute name="widget">timesheet_lines_widget</attribute>
+            </field>
+            <xpath expr="//field[@name='timesheet_ids']/list" position="attributes">
+                <attribute name="js_class">timesheet_hr_list_view</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

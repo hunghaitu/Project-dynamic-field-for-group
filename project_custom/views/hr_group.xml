@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_hr_group_list" model="ir.ui.view">
+        <field name="name">hr.group.list</field>
+        <field name="model">hr.group</field>
+        <field name="arch" type="xml">
+            <list string="Groups">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="manager_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_group_form" model="ir.ui.view">
+        <field name="name">hr.group.form</field>
+        <field name="model">hr.group</field>
+        <field name="arch" type="xml">
+            <form string="Group">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Group Name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Backend Team"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" placeholder="e.g. GR-01"/>
+                        </group>
+                        <group>
+                            <field name="manager_id" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_group" model="ir.actions.act_window">
+        <field name="name">Groups</field>
+        <field name="res_model">hr.group</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first hr Group!
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_group_config_root"
+              name="Groups"
+              parent="hr.menu_hr_root"
+              sequence="25"/>
+    <menuitem id="menu_hr_group_action"
+              name="Groups"
+              parent="menu_group_config_root"
+              action="action_hr_group"
+              sequence="20"/>
+
+</odoo>

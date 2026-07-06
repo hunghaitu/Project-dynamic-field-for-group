@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_project_project_form_inherited" model="ir.ui.view">
+        <field name="name">project.project.form.inherited.connes</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <field name="tag_ids" position="after">
+                <field name="group_id"/>
+                <field name="timesheet_optional_fields" invisible="1"/>
+            </field>
+            <xpath expr="//page[@name='settings']" position="before">
+                <page string="Timesheets" name="timesheets_custom_page">
+                    <field name="timesheet_ids" widget="timesheet_lines_widget" context="{'default_project_id': id, 'active_id': id}">
+                        <list editable="bottom">
+                            <field name="date"/>
+                            <field name="employee_id"/>
+                            <field name="name" string="Description"/>
+                            <field name="unit_amount" string="Time Spent" widget="timesheet_uom" sum="Total Time"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
