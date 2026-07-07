@@ -8,7 +8,9 @@
     'website': "https://www.facebook.com/quang.nguyenhuy.2005",
     'category': 'Uncategorized',
     'version': '19.0.1.0.0',
-    'license': 'LGPL-3',
+    'price': 29.00,
+    'currency': 'USD',
+    'license': 'OPL-1',
     'depends': ['base', 'mail', 'mail_bot', 'hr', 'hr_timesheet', 'project'],
     'data': [
         'security/ir.model.access.csv',
@@ -23,5 +25,7 @@
             'project_custom/static/src/**/*.js',
             'project_custom/static/src/**/*.xml',
         ],
-    }
+    },
+    'application': True,
+    'auto_install': False,
 }
