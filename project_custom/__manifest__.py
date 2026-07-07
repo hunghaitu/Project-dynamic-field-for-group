@@ -26,6 +26,9 @@
             'project_custom/static/src/**/*.xml',
         ],
     },
+    'images': [
+        'static/description/screenshot.png',
+    ],
     'application': True,
     'auto_install': False,
 }
