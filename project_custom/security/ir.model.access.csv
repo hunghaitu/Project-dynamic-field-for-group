@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_model_hr_cluster,model_hr_cluster,model_hr_cluster,base.group_user,1,0,0,0
+access_model_hr_cluster_group_system,model_hr_cluster,model_hr_cluster,base.group_system,1,1,1,1
+access_model_hr_group,model_hr_group,model_hr_group,base.group_user,1,0,0,0
+access_model_hr_group_group_system,model_hr_group,model_hr_group,base.group_system,1,1,1,1
+
+access_dynamic_timesheet_layout_config,model_dynamic_timesheet_layout_config,model_dynamic_timesheet_layout_config,base.group_user,1,1,1,0
+access_dynamic_timesheet_layout_config_line,model_dynamic_timesheet_layout_config_line,model_dynamic_timesheet_layout_config_line,base.group_user,1,1,1,0
+access_dynamic_timesheet_layout_config_group_system,model_dynamic_timesheet_layout_config,model_dynamic_timesheet_layout_config,base.group_system,1,1,1,1
+access_dynamic_timesheet_layout_config_line_system,model_dynamic_timesheet_layout_config_line,model_dynamic_timesheet_layout_config_line,base.group_system,1,1,1,1

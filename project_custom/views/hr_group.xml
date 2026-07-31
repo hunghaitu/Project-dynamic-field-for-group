@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_hr_group_list" model="ir.ui.view">
+        <field name="name">hr.group.list</field>
+        <field name="model">hr.group</field>
+        <field name="arch" type="xml">
+            <list string="Groups">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="cluster_id"/>
+                <field name="manager_id" optional="hide"/>
+                <field name="project_count"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_group_form" model="ir.ui.view">
+        <field name="name">hr.group.form</field>
+        <field name="model">hr.group</field>
+        <field name="arch" type="xml">
+            <form string="Group">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_linked_projects"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-folder-open">
+                            <field name="project_count" widget="statinfo" string="Projects"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" string="Group Name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Backend Team"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" placeholder="e.g. GR-01"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                        <group>
+                            <field name="cluster_id" options="{'no_create': True}"/>
+                            <field name="manager_id" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description"/>
+                    </group>
+                    <notebook>
+                        <page string="Projects" name="projects">
+                            <field name="project_ids" readonly="1">
+                                <list>
+                                    <field name="code"/>
+                                    <field name="name"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_group_search" model="ir.ui.view">
+        <field name="name">hr.group.search</field>
+        <field name="model">hr.group</field>
+        <field name="arch" type="xml">
+            <search string="Search Groups">
+                <field name="name" string="Group Name"/>
+                <field name="code" string="Group Code"/>
+                <field name="cluster_id" string="Cluster"/>
+                <field name="manager_id" string="Manager"/>
+                <separator/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <separator/>
+                <group>
+                    <filter name="group_by_cluster" context="{'group_by': 'cluster_id'}"/>
+                    <filter name="group_by_manager" context="{'group_by': 'manager_id'}"/>
+                    <filter name="groupby_status" context="{'group_by': 'active'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_group" model="ir.actions.act_window">
+        <field name="name">Groups</field>
+        <field name="res_model">hr.group</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Hr Group!
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_hr_group_action"
+              name="Groups"
+              parent="menu_hr_cluster_root"
+              action="action_hr_group"
+              sequence="20"/>
+
+</odoo>
