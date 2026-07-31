@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Connes Recruitment",
-    'summary': "Custom recruitment",
+    'name': "Project Custom",
+    'summary': "Project",
     'description': """
     """,
     'author': "Quang",
