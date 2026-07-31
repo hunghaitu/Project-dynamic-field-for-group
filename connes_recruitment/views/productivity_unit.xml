@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 1. Search View -->
+    <record id="view_productivity_unit_search" model="ir.ui.view">
+        <field name="name">productivity.unit.search</field>
+        <field name="model">productivity.unit</field>
+        <field name="arch" type="xml">
+            <search string="Search Productivity Units">
+                <field name="code" string="Productivity Unit Code"/>
+                <field name="name" string="Productivity Unit Name"/>
+                <field name="output_unit_id"/>
+                <separator/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <separator/>
+                <group>
+                    <filter name="groupby_output_unit" context="{'group_by': 'output_unit_id'}"/>
+                    <filter name="groupby_status" context="{'group_by': 'active'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- 2. List View -->
+    <record id="view_productivity_unit_list" model="ir.ui.view">
+        <field name="name">productivity.unit.list</field>
+        <field name="model">productivity.unit</field>
+        <field name="arch" type="xml">
+            <list string="Productivity Units" multi_edit="1">
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="output_unit_id"/>
+                <field name="description"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- 3. Form View -->
+    <record id="view_productivity_unit_form" model="ir.ui.view">
+        <field name="name">productivity.unit.form</field>
+        <field name="model">productivity.unit</field>
+        <field name="arch" type="xml">
+            <form string="Productivity Unit">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" placeholder="e.g. #Task/day/agent"/>
+                            <field name="output_unit_id" options="{'no_create': True}"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group>
+                            <field name="code" placeholder="e.g. TASK_DAY_AGENT"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Formula / Description" name="formula_page">
+                            <group>
+                                <field name="formula_description"/>
+                                <field name="description"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- 4. Action -->
+    <record id="action_productivity_unit" model="ir.actions.act_window">
+        <field name="name">Productivity Units</field>
+        <field name="res_model">productivity.unit</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_productivity_unit_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Productivity Unit
+            </p>
+            <p>
+                Define metrics to measure agent performance based on standard output units.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_productivity_unit"
+              name="Productivity Units"
+              parent="project.menu_project_config"
+              action="action_productivity_unit"
+              sequence="35"/>
+</odoo>

@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_my_recruitments" name="Headcount Change Requests">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <div class="o_portal_wrap">
+                <t t-call="portal.portal_searchbar">
+                    <t t-set="title">Headcount Change</t>
+                </t>
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3>Headcount Change Requests</h3>
+                    <a href="/my/recruitment/create" class="btn btn-primary">
+                        <i class="fa fa-plus"></i> New Request
+                    </a>
+                </div>
+
+                <t t-if="not recruitments">
+                    <div class="alert alert-warning" role="alert">
+                        There are no Headcount Change Requests.
+                    </div>
+                </t>
+                <t t-else="">
+                    <div class="table-responsive mt-3">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Request Title</th>
+                                    <th>Project Owner</th>
+                                    <th>Type</th>
+                                    <th>Effective Date</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="recruitments" t-as="rec">
+                                    <tr>
+                                        <td>
+                                            <a t-attf-href="/my/recruitment/#{rec.id}">
+                                                <t t-esc="rec.name"/>
+                                            </a>
+                                        </td>
+                                        <td><span t-field="rec.project_owner.name"/></td>
+                                        <td><span t-field="rec.type_of_request"/></td>
+                                        <td>
+                                            <t t-esc="rec.effective_date.strftime('%d/%m/%Y') if rec.effective_date else ''"/>
+                                        </td>
+                                        <td>
+                                            <span t-if="rec.state == 'draft'" class="badge text-bg-secondary">Draft</span>
+                                            <span t-elif="rec.state == 'manager_approve'" class="badge text-bg-info">Receiving &amp; Processing</span>
+                                            <span t-elif="rec.state == 'customer_review'" class="badge text-bg-info">Customer Review</span>
+                                            <span t-elif="rec.state == 'approved'" class="badge text-bg-success">Approved</span>
+                                            <span t-elif="rec.state == 'rejected'" class="badge text-bg-danger">Rejected</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <t t-if="rec.state == 'draft'">
+                                                <a t-attf-href="/my/recruitment/#{rec.id}/edit" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fa fa-edit"></i>
+                                                </a>
+                                            </t>
+                                            <a t-attf-href="/my/recruitment/#{rec.id}/delete" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this request?');">
+                                                <i class="fa fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div class="ms-auto">
+                            <t t-call="portal.pager"/>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_my_recruitment_create" name="Create Recruitment Request">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-4">
+                <h3>Create Headcount Change Request</h3>
+                <form method="POST" class="mt-3">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <div class="mb-3">
+                        <label class="form-label">Request Title <span class="text-danger">*</span></label>
+                        <input type="text" name="name" required="1" class="form-control"/>
+                    </div>
+                    <h5 class="text-primary mb-3">
+                        <i class="fa fa-info-circle me-1"></i>
+                        General Information
+                    </h5>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label class="form-label">Project Owner <span class="text-danger">*</span></label>
+                                <select name="project_owner" required="1" class="form-select">
+                                    <t t-foreach="project_owners" t-as="p">
+                                        <option t-att-value="p.id" t-esc="p.name"/>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Notification Recipients:</label>
+                                <select name="recipients" class="form-select" multiple="multiple" size="10">
+                                    <t t-foreach="recipients" t-as="r">
+                                        <option t-att-value="r.id" t-esc="r.name"/>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="mb-3">
+                                <label class="form-label">Type of Request <span class="text-danger">*</span></label>
+                                <select name="type_of_request" required="1" class="form-select">
+                                    <option value="increase">Headcount Increase</option>
+                                    <option value="decrease">Headcount Decrease</option>
+                                    <option value="start_lob">Start a Line of Business</option>
+                                    <option value="end_lob">End a Line of Business</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Effective Date</label>
+                                <input type="date" name="effective_date" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="text-primary mb-3">
+                        <i class="fa fa-cogs me-1"></i>
+                        Process Details
+                    </h5>
+
+                    <div class="mb-3" id="existing_process_div">
+                        <label class="form-label">Existing Process <span class="text-danger">*</span></label>
+                        <select name="existing_process" class="form-select" required="1">
+                            <option value="">-- Select Process --</option>
+                            <t t-foreach="processes" t-as="proc">
+                                <option t-att-value="proc.id" t-esc="proc.name"/>
+                            </t>
+                        </select>
+                    </div>
+
+                    <div class="mb-3" id="new_process_div">
+                        <label class="form-label">New Process Name <span class="text-danger">*</span></label>
+                        <input type="text" name="new_process_name" class="form-control"/>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const typeSelect = document.querySelector('select[name="type_of_request"]');
+                        const existingDiv = document.querySelector('#existing_process_div');
+                        const newDiv = document.querySelector('#new_process_div');
+
+                        function toggleFields() {
+                            if (typeSelect.value === 'start_lob') {
+                                existingDiv.style.display = 'none';
+                                newDiv.style.display = 'block';
+                            } else {
+                                existingDiv.style.display = 'block';
+                                newDiv.style.display = 'none';
+                            }
+                        }
+
+                        typeSelect.addEventListener('change', toggleFields);
+                        toggleFields();
+                    });
+                    </script>
+
+                    <h5 class="text-primary mt-4 mb-3">
+                        <i class="fa fa-users me-1"></i>
+                        Headcount Details
+                    </h5>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Current Headcount</label>
+                            <input type="number" name="current_headcount" class="form-control"/>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Change (+/-)</label>
+                            <input type="number" name="headcount_change" class="form-control"/>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Total Desired Headcount</label>
+                            <input type="number" name="total_desired_headcount" class="form-control"/>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Create</button>
+                    <a href="/my/recruitments" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_my_recruitment_edit" name="Edit Recruitment Request">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-4">
+                <h3>Edit Request: <t t-esc="recruitment.name"/></h3>
+                <form method="POST" class="mt-3">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                    <div class="mb-3">
+                        <label class="form-label">Request Title <span class="text-danger">*</span></label>
+                        <input type="text" name="name" t-att-value="recruitment.name" required="1" class="form-control"/>
+                    </div>
+
+                    <h5 class="text-primary mb-3">
+                        <i class="fa fa-info-circle me-1"></i>
+                        General Information
+                    </h5>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <div class="mb-3">
+                                <label class="form-label">Project Owner <span class="text-danger">*</span></label>
+                                <select name="project_owner" class="form-select" required="1">
+                                    <t t-foreach="project_owners" t-as="p">
+                                        <option t-att-value="p.id" t-att-selected="p.id == recruitment.project_owner.id" t-esc="p.name"/>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Notification Recipients</label>
+                                <select name="recipients" class="form-select" multiple="multiple" size="10">
+                                    <t t-foreach="recipients" t-as="r">
+                                        <option t-att-value="r.id" t-att-selected="r.id in recruitment.recipients.ids" t-esc="r.name"/>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="mb-3">
+                                <label class="form-label">Type of Request <span class="text-danger">*</span></label>
+                                <select name="type_of_request" required="1" class="form-select">
+                                    <option value="increase" t-att-selected="recruitment.type_of_request=='increase'">Headcount Increase</option>
+                                    <option value="decrease" t-att-selected="recruitment.type_of_request=='decrease'">Headcount Decrease</option>
+                                    <option value="start_lob" t-att-selected="recruitment.type_of_request=='start_lob'">Start a Line of Business</option>
+                                    <option value="end_lob" t-att-selected="recruitment.type_of_request=='end_lob'">End a Line of Business</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Effective Date <span class="text-danger">*</span></label>
+                                <input type="date" name="effective_date" t-att-value="recruitment.effective_date" required="1" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="text-primary mb-3">
+                        <i class="fa fa-cogs me-1"></i>
+                        Process Details
+                    </h5>
+
+                    <div class="mb-3" id="existing_process_div">
+                        <label class="form-label">Existing Process <span class="text-danger">*</span></label>
+                        <select name="existing_process" class="form-select" required="1">
+                            <option value="">-- Select Process --</option>
+                            <t t-foreach="processes" t-as="proc">
+                                <option t-att-value="proc.id" t-att-selected="proc.id==recruitment.existing_process.id" t-esc="proc.name"/>
+                            </t>
+                        </select>
+                    </div>
+
+                    <div class="mb-3" id="new_process_div">
+                        <label class="form-label">New Process Name <span class="text-danger">*</span></label>
+                        <input type="text" name="new_process_name" t-att-value="recruitment.new_process_name" class="form-control"/>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="3"><t t-esc="recruitment.description"/></textarea>
+                    </div>
+
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const typeSelect = document.querySelector('select[name="type_of_request"]');
+                        const existingDiv = document.querySelector('#existing_process_div');
+                        const newDiv = document.querySelector('#new_process_div');
+
+                        function toggleFields() {
+                            if (typeSelect.value === 'start_lob') {
+                                existingDiv.style.display = 'none';
+                                newDiv.style.display = 'block';
+                            } else {
+                                existingDiv.style.display = 'block';
+                                newDiv.style.display = 'none';
+                            }
+                        }
+
+                        typeSelect.addEventListener('change', toggleFields);
+                        toggleFields();
+                    });
+                    </script>
+
+                    <h5 class="text-primary mt-4 mb-3">
+                        <i class="fa fa-users me-1"></i>
+                        Headcount Details
+                    </h5>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Current Headcount</label>
+                            <input type="number" name="current_headcount" t-att-value="recruitment.current_headcount" class="form-control"/>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Change (+/-)</label>
+                            <input type="number" name="headcount_change" t-att-value="recruitment.headcount_change" class="form-control"/>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Total Desired Headcount</label>
+                            <input type="number" name="total_desired_headcount" t-att-value="recruitment.total_desired_headcount" class="form-control"/>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-success" type="submit">Save Changes</button>
+                    <a href="/my/recruitments" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </t>
+    </template>
+
+
+    <template id="portal_my_recruitment_detail" name="Recruitment Request Detail">
+        <t t-call="portal.portal_layout">
+
+            <div class="container my-4">
+                <div class="card shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <span t-esc="recruitment.name"/>
+                        </h4>
+                        <span t-if="recruitment.state == 'draft'" class="badge text-bg-secondary">Draft</span>
+                        <span t-if="recruitment.state == 'manager_approve'" class="badge text-bg-info">Receiving &amp; Processing</span>
+                        <span t-if="recruitment.state == 'customer_review'" class="badge text-bg-info">Customer Review</span>
+                        <span t-if="recruitment.state == 'approved'" class="badge text-bg-success">Approved</span>
+                        <span t-if="recruitment.state == 'rejected'" class="badge text-bg-danger">Rejected</span>
+                    </div>
+                    <div class="card-body">
+
+                        <!-- Request Information -->
+                        <h5 class="text-primary mb-3">
+                            <i class="fa fa-info-circle me-1"></i>
+                            General Information
+                        </h5>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <strong>Requested by:</strong><br/>
+                                    <span t-esc="recruitment.requested_by.name"/>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Project Owner:</strong><br/>
+                                    <span t-esc="recruitment.project_owner.name"/>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Notification Recipients:</strong><br/>
+                                    <span t-esc="recipient_names"/>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="mb-3">
+                                    <strong>Type of Request:</strong> <br/>
+                                    <span t-field="recruitment.type_of_request"/>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Effective Date:</strong><br/>
+                                    <t t-esc="recruitment.effective_date.strftime('%d/%m/%Y') if recruitment.effective_date else ''"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Process section -->
+                        <h5 class="text-primary mb-3">
+                            <i class="fa fa-cogs me-1"></i>
+                            Process Details
+                        </h5>
+
+                        <t t-if="recruitment.type_of_request != 'start_lob'">
+                            <div class="mb-3">
+                                <strong>Existing Process:</strong><br/>
+                                <span t-esc="recruitment.existing_process.name"/>
+                            </div>
+
+                            <div class="mb-3">
+                                <strong>Description:</strong><br/>
+                                <span t-esc="recruitment.description"/>
+                            </div>
+                        </t>
+
+                        <t t-if="recruitment.type_of_request == 'start_lob'">
+                            <div class="mb-3">
+                                <strong>New Process Name:</strong><br/>
+                                <span t-esc="recruitment.new_process_name"/>
+                            </div>
+                        </t>
+
+                        <!-- Headcount -->
+                        <h5 class="text-primary mt-4 mb-3">
+                            <i class="fa fa-users me-1"></i>
+                            Headcount Details
+                        </h5>
+
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <strong>Current Headcount:</strong><br/>
+                                <span t-esc="recruitment.current_headcount"/>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Change (+/-):</strong><br/>
+                                <span t-esc="recruitment.headcount_change"/>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Total Desired Headcount:</strong><br/>
+                                <span t-esc="recruitment.total_desired_headcount"/>
+                            </div>
+                        </div>
+
+                        <hr/>
+
+                        <!-- Action buttons -->
+                        <div class="d-flex justify-content-between">
+
+                            <a href="/my/recruitments" class="btn btn-outline-secondary">
+                                <i class="fa fa-chevron-left me-1"></i> Back to list
+                            </a>
+
+                            <div>
+                                <!-- SEND FOR APPROVAL (only in draft state) -->
+                                <t t-if="recruitment.state == 'draft'">
+                                    <a t-attf-href="/my/recruitment/#{recruitment.id}/send"
+                                       class="btn btn-primary me-2">
+                                        <i class="fa fa-paper-plane me-1"></i> Send for Approval
+                                    </a>
+                                </t>
+
+                                <!-- RESET TO DRAFT (only in manager_approve state) -->
+                                <t t-if="recruitment.state == 'manager_approve'">
+                                    <a t-attf-href="/my/recruitment/#{recruitment.id}/reset"
+                                       class="btn btn-warning">
+                                        <i class="fa fa-undo me-1"></i> Reset to Draft
+                                    </a>
+                                </t>
+
+                                <t t-if="recruitment.state == 'customer_review'">
+                                    <a t-attf-href="/my/recruitment/#{recruitment.id}/approve"
+                                       class="btn btn-success me-2">
+                                        <i class="fa fa-check me-1"></i> Approve
+                                    </a>
+
+                                    <a t-attf-href="/my/recruitment/#{recruitment.id}/reject"
+                                       class="btn btn-danger">
+                                        <i class="fa fa-times me-1"></i> Reject
+                                    </a>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Khung Chatter dành cho Portal Web -->
+<!--                        <div class="mt-5">-->
+<!--                            <h5 class="mb-4">History &amp; Communication</h5>-->
+<!--                            <t t-call="portal.message_thread">-->
+<!--                                <t t-set="object" t-value="recruitment"/>-->
+<!--                            </t>-->
+<!--                        </div>-->
+                    </div>
+                </div>
+
+            </div>
+
+        </t>
+    </template>
+
+</odoo>

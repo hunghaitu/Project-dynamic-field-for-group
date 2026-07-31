@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_task_form2_inherited" model="ir.ui.view">
+        <field name="name">project.task.form.inherited.connes</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="hr_timesheet.view_task_form2_inherited"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='project_id']" position="before">
+                <field name="code"/>
+            </xpath>
+            <xpath expr="//field[@name='user_ids']" position="after">
+                <field name="task_start_date"/>
+                <field name="tag_ids" position="move"/>
+                <field name="project_unit"/>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="task_category_id"/>
+                <field name="assigned_date"/>
+            </xpath>
+            <xpath expr="//field[@name='date_deadline']" position="after">
+                <field name="task_completion_date"/>
+            </xpath>
+
+            <xpath expr="//page[@name='description_page']" position="after">
+                <page name="output" string="Output &amp; QA">
+                    <group string="Latest Submission Summary">
+                        <group>
+                            <field name="lastest_submission_no"/>
+                            <field name="latest_qa_result" widget="badge"
+                                   decoration-success="latest_qa_result == 'approved'"
+                                   decoration-warning="latest_qa_result == 'rework_required'"
+                                   decoration-danger="latest_qa_result == 'rejected'"/>
+                            <field name="latest_submitted_date"/>
+                            <field name="latest_reviewed_date"/>
+                        </group>
+                        <group>
+                            <field name="latest_submission_status" widget="badge"
+                                   decoration-success="latest_submission_status == 'submitted'"
+                                   decoration-warning="latest_submission_status == 'Reviewed'"
+                                   decoration-info="latest_submission_status == 'draft'"/>
+                            <field name="latest_submitted_by_id"/>
+                            <field name="latest_reviewed_by_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="latest_qa_note"/>
+                    </group>
+                    <group string="Output Submission History">
+                        <field name="submission_ids" nolabel="1">
+                            <list default_order="attempt_no desc">
+                                <field name="attempt_no" string="Attempt No." format="Attempt %s"/>
+                                <field name="submission_status"
+                                       string="Status"
+                                       widget="badge"
+                                       decoration-info="submission_status == 'draft'"
+                                       decoration-warning="submission_status == 'submitted'"
+                                       decoration-success="submission_status == 'reviewed'"/>
+                                <field name="link_count" string="Links" class="text-info fw-bold"/>
+                                <field name="file_count" string="Files" class="text-info fw-bold"/>
+                                <field name="output_note" string="Output Note"/>
+                                <field name="submitted_by_id" string="Submitted By"/>
+                                <field name="submitted_date" string="Submitted Date"/>
+                                <field name="qa_result"
+                                       string="QA Result"
+                                       widget="badge"
+                                       decoration-success="qa_result == 'approved'"
+                                       decoration-warning="qa_result == 'rework_required'"
+                                       decoration-danger="qa_result == 'rejected'"/>
+                                <field name="reviewed_by_id" string="Reviewed By"/>
+                                <field name="reviewed_date" string="Reviewed Date"/>
+                            </list>
+                        </field>
+                    </group>
+                </page>
+                <page name="kpi" string="Productivity KPI">
+                    <group>
+                        <group string="General Metrics">
+                            <field name="quantity_completed"/>
+                            <field name="total_hours_log_internal"/>
+                            <field name="total_hours_log"/>
+                        </group>
+                        <group>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Productivity Planning">
+                            <field name="productivity_goal"/>
+                            <field name="productivity_unit_id"/>
+                            <field name="estimated_productivity"/>
+                            <field name="estimated_completion_hours"/>
+                            <field name="estimated_hours_remaining"/>
+                        </group>
+                        <group string="KPI (Computed metrics)">
+                            <field name="actual_productivity"/>
+                            <field name="actual_tat"/>
+                            <field name="week_completed"/>
+                            <field name="month_completed"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+            <xpath expr="//page[@name='sub_tasks_page']" position="after">
+                <page name="rework_history" string="Rework History">
+                    <field name="rework_ids" nolabel="1">
+                        <list default_order="rework_no desc">
+                            <field name="rework_no" string="Rework No." format="Rework %s"/>
+                            <field name="submission_id" string="Related Submission"/>
+                            <field name="rework_reason_id" string="Reason"/>
+                            <field name="rework_note" string="Rework Note"/>
+                            <field name="requested_by_id" string="Requested By"/>
+                            <field name="requested_date" string="Requested Date"/>
+                            <field name="resubmitted_date" string="Resubmitted Date"/>
+                            <field name="status"
+                                   string="Status"
+                                   widget="badge"
+                                   decoration-info="status == 'open'"
+                                   decoration-warning="status == 'resubmitted'"
+                                   decoration-success="status == 'closed'"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="view_project_task_list_inherit" model="ir.ui.view">
+        <field name="name">project.task.list.inherit</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.project_task_view_tree_main_base"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='progress']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='priority']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='tag_ids']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='date_deadline']" position="attributes">
+                <attribute name="optional">show</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='name']" position="before">
+                <field name="code" optional="show"/>
+            </xpath>
+            <xpath expr="//field[@name='user_ids']" position="after">
+                <field name="assigned_date" optional="show"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!--    <record id="view_project_task_list_inherit_tree_base" model="ir.ui.view">-->
+    <!--        <field name="name">project.task.list.inherit.view.base</field>-->
+    <!--        <field name="model">project.task</field>-->
+    <!--        <field name="inherit_id" ref="project.project_task_view_tree_base"/>-->
+    <!--        <field name="arch" type="xml">-->
+    <!--            <xpath expr="//field[@name='activity_ids']" position="attributes">-->
+    <!--                <attribute name="optional">hide</attribute>-->
+    <!--            </xpath>-->
+    <!--        </field>-->
+    <!--    </record>-->
+
+    <!--    <record id="view_project_task_list_inherit_tree2" model="ir.ui.view">-->
+    <!--        <field name="name">project.task.list.inherit.tree2</field>-->
+    <!--        <field name="model">project.task</field>-->
+    <!--        <field name="inherit_id" ref="hr_timesheet.view_task_tree2_inherited"/>-->
+    <!--        <field name="arch" type="xml">-->
+    <!--            <xpath expr="//field[@name='effective_hours']" position="attributes">-->
+    <!--                <attribute name="column_invisible">1</attribute>-->
+    <!--                <attribute name="optional">hide</attribute>-->
+    <!--            </xpath>-->
+    <!--        </field>-->
+    <!--    </record>-->
+
+    <record id="view_project_task_filter_inherit" model="ir.ui.view">
+        <field name="name">project.task.search.inherit</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_search_form_base"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="code"/>
+                <field name="task_category_id"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter name="groupby_task_category_id" context="{'group_by': 'task_category_id'}"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
