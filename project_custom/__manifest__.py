@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Project Custom",
-    'summary': "Project",
-    'description': """
+    'name': "Dynamic timesheet fields on Project",
+    'summary': "Dynamic timesheet fields on Project",
+    'description': """Config dynamic timesheet fields on Project for each group
     """,
     'author': "Quang",
     'website': "https://www.facebook.com/quang.nguyenhuy.2005",
