@@ -8,7 +8,7 @@
     'website': "https://www.facebook.com/quang.nguyenhuy.2005",
     "category": "Services/Project",
     'version': '19.0.1.0.0',
-    'price': 12.00,
+    'price': 0.00,
     'currency': 'USD',
     'license': 'OPL-1',
     'depends': ['base', 'hr', 'project'],
